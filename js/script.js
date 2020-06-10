@@ -34,7 +34,7 @@ const showLinks = () => {
     document.querySelector('.link-count').innerHTML = '';
     document.querySelector('.link-area').innerHTML = '';
     
-    const findLinks = input.querySelector('textarea').value.match(/(href\s*=\s*['"])([^]*?)(?:['"][^]*?)/g);
+    const findLinks = input.querySelector('textarea').value.match(/(href\s*=\s*["])([^]*?)(?:["][^]*?)/g);
 	document.querySelector('.link-count').innerText = `${findLinks.length} link(s) found in the HTML :`; 
     
 	findLinks
