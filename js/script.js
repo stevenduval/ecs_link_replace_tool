@@ -29,45 +29,59 @@ const characterCount = () => {
 }
 
 const showLinks = () => {
-    
-    // clear previous items if button is clicked again
+    // clear link area and count if button is clicked again
     document.querySelector('.link-count').innerHTML = '';
     document.querySelector('.link-area').innerHTML = '';
-    
-    const findLinks = input.querySelector('textarea').value.match(/(href\s*=\s*["])([^]*?)(?:["][^]*?)/g);
-	document.querySelector('.link-count').innerText = `${findLinks.length} link(s) found in the HTML :`; 
-    
-	findLinks
-		.map(link => (/""/g.test(link)) ? link.replace(/href\=/g,"").replace(/""/g,"blank href tag") : link.replace(/href\=/g,"").replace(/"/g,""))
-		.forEach( link => {
-                            document.querySelector('.link-area')
-                                .insertAdjacentHTML('beforeend', 
-                                                        `<div class="link">
-                                                            <div class="link-container">
-                                                                <div class="currentLink">
-                                                                    <span>Current Link :</span><input type="text" value="${link}" readonly>
-                                                                </div>
-                                                                <div class="newLink">
-                                                                    <span>New Link :</span><input type="text" value="${link}">
-                                                                </div>
-                                                            </div>
-                                                        </div>`)
-        });
+    //set reuseable variables
+    const getBody = input.querySelector('textarea').value.match(/(<body[^]*)/g).toString();
+    const getLinks = getBody.match(/(href\s*=\s*["])([^]*?)(?:["][^]*?)/g);
+	const links = getLinks.map(link => (/""/g.test(link)) ? link.replace(/href\=/g,"").replace(/""/g,"blank href tag") : link.replace(/href\=/g,"").replace(/"/g,""));
+    // place count of links into the DOm
+    document.querySelector('.link-count').innerText = `${getLinks.length} link(s) found in the HTML :`; 
+    // create div elements for each link in the links array
+    links.forEach(link => { 
+        document.querySelector('.link-area')
+            .insertAdjacentHTML('beforeend', 
+                `<div class="link">
+                    <div class="link-container">
+                        <div class="currentLink">
+                            <span>Current Link :</span><input type="text" readonly>
+                        </div>
+                        <div class="newLink">
+                            <span>New Link :</span><input type="text">
+                        </div>
+                    </div>
+                </div>`
+            )
+    });
+    // insert link into input value *reason for this is so insertAdjacentHTML doesnt parse html entities as html characters*
+    links.forEach((link,index) => {
+        document.querySelectorAll('.link-area > .link > .link-container > .currentLink > input')[index].value = link;
+        document.querySelectorAll('.link-area > .link > .link-container > .newLink > input')[index].value = link;
+    });
 }
 
 const updateLinks = () => {
+    // set reusable variables
+    const getNewLinks = document.querySelectorAll('.newLink > input');
+    const getNewLinksValues = [];
+    const getHeader = input.querySelector('textarea').value.match(/<[^]*(?=<body)/g).toString();
+    const getBody = input.querySelector('textarea').value.match(/(<body[^]*)/g).toString();
     let i = 0;
-    const getNewLink = document.querySelectorAll('.newLink > input');
-    const getNewLinkValues = [];
-    getNewLink.forEach( link => getNewLinkValues.push(link.value));
-    const returnURL = (url) => { 
+    // for each new link, push it to an array
+    getNewLinks.forEach( link => getNewLinksValues.push(link.value));
+    // function to add href to new link values
+    const returnFinalURLs = (url) => { 
         i++ 
-        return 'href="' + getNewLinkValues[i-1] + '"' 
+        return 'href="' + getNewLinksValues[i-1] + '"' 
     };
-    output.querySelector('textarea').value = input.querySelector('textarea').value.replace(/(href\s*=\s*['"])([^]*?)(?:['"][^]*?)/g, returnURL);
+    // replace urls with new url values
+    const replacedLinks = getBody.replace(/(href\s*=\s*["])([^]*?)(?:["][^]*?)/g, returnFinalURLs)
+    // set output area value
+    output.querySelector('textarea').value = getHeader+replacedLinks;
 }
 
-//event listeners
+// event listeners
 findlinksBtn.addEventListener('click', showLinks);
 updatelinksBtn.addEventListener('click', updateLinks);
 saveBtn.addEventListener('click', saveOutput);
