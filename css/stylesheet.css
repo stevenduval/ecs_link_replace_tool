@@ -72,9 +72,7 @@ button {
 }
 
 .link {
-    height: 70px;
     text-align: center;
-    padding-top: 17px;
 }
 
 .link > div > div > input {
@@ -85,6 +83,7 @@ button {
     margin: 0 auto;
     width: 78vw;
     text-align: left;
+    padding: 17px 0;
 }
 .currentLink {
     padding-bottom: 12px;
